@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Timesheet Management App
 
-## Getting Started
+A simplified SaaS-style Timesheet Management application.
 
-First, run the development server:
+## Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+[Add your Vercel URL here after deploying]
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Next.js 15** (App Router) + TypeScript
+- **TailwindCSS** for styling
+- **next-auth v5** for authentication (dummy credentials-based login)
+- In-memory mock data store (no external database — see Assumptions below)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup Instructions
 
-## Learn More
+1. Clone the repository:
 
-To learn more about Next.js, take a look at the following resources:
+   git clone <your-repo-url>
+   cd timesheet-app
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Install dependencies:
 
-## Deploy on Vercel
+   npm install
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Create a `.env.local` file in the project root with:
+
+    AUTH_SECRET=<generate your own with: openssl rand -base64 32>
+
+4. Run the development server:
+
+   npm run dev
+
+
+5. Open [http://localhost:3000](http://localhost:3000). You'll be redirected to `/login`.
+
+### Demo credentials
+Email:    demo@tentwenty.com
+Password: demo1234
+
+## Project Structure
+src/
+app/
+login/           - Login page (client component)
+dashboard/        - Dashboard layout (auth-protected) + page
+api/
+auth/[...nextauth]/  - next-auth route handler
+timesheets/          - CRUD API routes for timesheet entries
+components/
+TimesheetTable.tsx     - Table (desktop) + card list (mobile) view
+TimesheetModal.tsx     - Add/Edit modal with form validation
+lib/
+auth.ts       - next-auth configuration
+types.ts      - Shared TypeScript types
+mockData.ts   - In-memory data store
+
+## Assumptions & Notes
+
+- **Authentication** is dummy/mock as instructed — a single hardcoded demo user via next-auth's Credentials provider. In a production version, `authorize()` would call a real backend/database to verify credentials.
+- **Data persistence** uses an in-memory array on the server (`lib/mockData.ts`) rather than a real database, since no backend/API was supplied for this assessment. Data resets whenever the server restarts. All CRUD operations go through internal Next.js API routes (`/api/timesheets`), so swapping in a real database later would only require changing `mockData.ts` — the route handlers and UI would not need to change.
+- **Validation** is implemented on both the client (immediate UX feedback in the modal/login form) and the server (API routes independently re-validate, since client-side checks can be bypassed).
+- **Week number** is constrained to 1–53 on both client and server.
+- **Responsive design** uses two distinct layouts (a table for `sm:` breakpoint and above, stacked cards below it) rather than a horizontally scrolling table, for better mobile usability.
+- **Known limitation:** the validation logic is currently duplicated between `api/timesheets/route.ts` and `api/timesheets/[id]/route.ts`. Given more time, this would be extracted into a shared `lib/validation.ts` module.
