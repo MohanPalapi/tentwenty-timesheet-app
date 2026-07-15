@@ -1,12 +1,13 @@
-interface TimesheetEntry {
+export type TimesheetStatus = "Draft" | "Submitted" | "Approved" | "Rejected";
+
+export interface TimesheetEntry {
   id: string;
   weekNumber: number;
-  date: string;
+  date: string; // ISO date string, e.g. "2026-07-14"
   status: TimesheetStatus;
+  hoursLogged?: number;
+  notes?: string;
 }
 
-interface TimesheetFormValues {
-  weekNumber: number;
-  date: string;
-  status: TimesheetStatus;
-}
+// Shape used by the Add/Edit form before an id is assigned
+export type TimesheetFormValues = Omit<TimesheetEntry, "id">;
